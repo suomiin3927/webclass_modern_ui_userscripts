@@ -7,8 +7,8 @@
 // @match        *://*/webclass/*
 // @grant        none
 // @run-at       document-end
-// @updateURL    https://githubusercontent.com
-// @downloadURL  https://githubusercontent.com
+// @updateURL    https://raw.githubusercontent.com/suomiin3927/webclass_modern_ui_userscripts/refs/heads/main/scripts/main.user.js
+// @downloadURL  https://raw.githubusercontent.com/suomiin3927/webclass_modern_ui_userscripts/refs/heads/main/scripts/main.user.js
 // ==/UserScript==
 
 (function () {
