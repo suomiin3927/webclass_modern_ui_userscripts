@@ -1,2 +1,2 @@
 # webclass_modern_ui_userscripts
-WebClassのユーザインターフェースを現代的に変える試み。
+WebClassのユーザインターフェースを現代的に変える試み。随時更新して行きますです。
