@@ -1,7 +1,7 @@
 {
   "name": "webclass-modern-ui-userscript",
   "version": "0.1.0",
-  "description": "宮崎大学WebClassの古いUIを完全にモダンなデザインへ再構築するUserscript",
+  "description": "WebClass の古いUIをTampermonkeyで完全にモダンなデザインへ再構築するUserscript",
   "private": true,
   "scripts": {
     "dev": "vite",

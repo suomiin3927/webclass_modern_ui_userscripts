@@ -529,3 +529,534 @@
     transition-duration: 0.01ms !important;
   }
 }
+/* ============================================================
+   WebClass Modern UI — グローバルスタイル
+   設計方針:
+   - CSS変数（--wc-*）でテーマを一元管理。GM_setValueで保存した値を
+     JS側からroot変数に上書きすることでカスタマイズに対応。
+   - クラス名プレフィックス「.wc-」で元サイトCSSとの衝突を防止。
+   - モバイルファースト + CSSメディアクエリのみでレスポンシブ対応。
+   - Flexbox / CSS Grid を主体とし、絶対値での幅固定を排除。
+   ============================================================ */
+
+/* ============================================================
+   1. デザイントークン（CSS変数）
+   ============================================================ */
+:root {
+  /* --- カラーパレット（ユーザーのGM_getValueで上書き可能） --- */
+  --wc-color-primary:        #2563eb; /* ブランドカラー（デフォルト：青） */
+  --wc-color-primary-light:  #3b82f6;
+  --wc-color-primary-dark:   #1d4ed8;
+  --wc-color-primary-ghost:  #eff6ff; /* 選択行・ホバー背景 */
+
+  --wc-color-success:        #16a34a;
+  --wc-color-success-ghost:  #f0fdf4;
+  --wc-color-warning:        #d97706;
+  --wc-color-warning-ghost:  #fffbeb;
+  --wc-color-danger:         #dc2626;
+  --wc-color-danger-ghost:   #fef2f2;
+  --wc-color-info:           #0891b2;
+  --wc-color-info-ghost:     #ecfeff;
+
+  /* --- ニュートラル --- */
+  --wc-color-bg:             #f8fafc;
+  --wc-color-surface:        #ffffff;
+  --wc-color-surface-raised: #ffffff;
+  --wc-color-border:         #e2e8f0;
+  --wc-color-border-strong:  #cbd5e1;
+
+  --wc-color-text-primary:   #0f172a;
+  --wc-color-text-secondary: #475569;
+  --wc-color-text-muted:     #94a3b8;
+  --wc-color-text-inverse:   #ffffff;
+
+  /* --- タイポグラフィ --- */
+  --wc-font-sans: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'YuGothic', 'Meiryo', system-ui, sans-serif;
+  --wc-font-mono: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+
+  --wc-text-xs:   0.75rem;   /* 12px */
+  --wc-text-sm:   0.875rem;  /* 14px */
+  --wc-text-base: 1rem;      /* 16px — スマホズーム防止のため最小16px */
+  --wc-text-lg:   1.125rem;  /* 18px */
+  --wc-text-xl:   1.25rem;   /* 20px */
+  --wc-text-2xl:  1.5rem;    /* 24px */
+  --wc-text-3xl:  1.875rem;  /* 30px */
+
+  --wc-leading-tight:  1.25;
+  --wc-leading-normal: 1.6;
+
+  /* --- スペーシング --- */
+  --wc-space-1:  0.25rem;   /* 4px  */
+  --wc-space-2:  0.5rem;    /* 8px  */
+  --wc-space-3:  0.75rem;   /* 12px */
+  --wc-space-4:  1rem;      /* 16px */
+  --wc-space-5:  1.25rem;   /* 20px */
+  --wc-space-6:  1.5rem;    /* 24px */
+  --wc-space-8:  2rem;      /* 32px */
+  --wc-space-10: 2.5rem;    /* 40px */
+  --wc-space-12: 3rem;      /* 48px */
+
+  /* --- 形状 --- */
+  --wc-radius-sm:  0.25rem;
+  --wc-radius-md:  0.5rem;
+  --wc-radius-lg:  0.75rem;
+  --wc-radius-xl:  1rem;
+  --wc-radius-full: 9999px;
+
+  /* --- シャドウ --- */
+  --wc-shadow-xs:  0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --wc-shadow-sm:  0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --wc-shadow-md:  0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --wc-shadow-lg:  0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* --- トランジション --- */
+  --wc-transition-fast:   100ms ease;
+  --wc-transition-normal: 200ms ease;
+  --wc-transition-slow:   300ms ease;
+
+  /* --- レイアウト --- */
+  --wc-header-height:    60px;
+  --wc-sidebar-width:    260px;
+  --wc-content-max-width: 1200px;
+}
+
+/* ダークモード対応（将来拡張） */
+@media (prefers-color-scheme: dark) {
+  :root.wc-theme-auto {
+    --wc-color-bg:             #0f172a;
+    --wc-color-surface:        #1e293b;
+    --wc-color-surface-raised: #334155;
+    --wc-color-border:         #334155;
+    --wc-color-border-strong:  #475569;
+    --wc-color-text-primary:   #f1f5f9;
+    --wc-color-text-secondary: #94a3b8;
+    --wc-color-text-muted:     #64748b;
+    --wc-color-primary-ghost:  #1e3a5f;
+  }
+}
+
+/* ============================================================
+   2. リセット & ベース
+   ============================================================ */
+.wc-app *,
+.wc-app *::before,
+.wc-app *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.wc-app {
+  font-family: var(--wc-font-sans);
+  font-size: var(--wc-text-base);
+  line-height: var(--wc-leading-normal);
+  color: var(--wc-color-text-primary);
+  background: var(--wc-color-bg);
+  min-height: 100vh;
+  /* 元サイトの全スタイルをこのルート要素でリセット */
+  all: initial;
+  display: block;
+}
+
+/* ============================================================
+   3. ローディング画面 & スピナー
+   ============================================================ */
+
+/* DOM構築前に <html> へ直接挿入するローディングオーバーレイ */
+#wc-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: var(--wc-color-surface, #fff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: var(--wc-space-4, 16px);
+  font-family: var(--wc-font-sans, system-ui, sans-serif);
+}
+
+#wc-loading.wc-loading--hidden {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--wc-transition-slow, 300ms ease);
+}
+
+.wc-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--wc-color-border, #e2e8f0);
+  border-top-color: var(--wc-color-primary, #2563eb);
+  border-radius: 50%;
+  animation: wc-spin 0.7s linear infinite;
+}
+
+@keyframes wc-spin {
+  to { transform: rotate(360deg); }
+}
+
+.wc-loading__label {
+  font-size: var(--wc-text-sm, 14px);
+  color: var(--wc-color-text-muted, #94a3b8);
+  letter-spacing: 0.05em;
+}
+
+/* ============================================================
+   4. スケルトンローダー
+   ============================================================ */
+.wc-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--wc-color-border, #e2e8f0) 25%,
+    var(--wc-color-bg, #f8fafc) 37%,
+    var(--wc-color-border, #e2e8f0) 63%
+  );
+  background-size: 400% 100%;
+  animation: wc-shimmer 1.4s ease infinite;
+  border-radius: var(--wc-radius-sm);
+}
+
+@keyframes wc-shimmer {
+  0%   { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.wc-skeleton--text {
+  height: 1em;
+  border-radius: var(--wc-radius-full);
+}
+
+.wc-skeleton--heading {
+  height: 1.5em;
+  width: 60%;
+  border-radius: var(--wc-radius-full);
+}
+
+.wc-skeleton--card {
+  height: 80px;
+  border-radius: var(--wc-radius-md);
+}
+
+/* ============================================================
+   5. 共通UIコンポーネント — ボタン
+   ============================================================ */
+.wc-btn {
+  /* タップターゲット最小 44x44px（iOS HIG 基準） */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--wc-space-2);
+  min-height: 44px;
+  padding: var(--wc-space-2) var(--wc-space-4);
+  font-family: var(--wc-font-sans);
+  font-size: var(--wc-text-sm);
+  font-weight: 500;
+  line-height: 1;
+  border: 1px solid transparent;
+  border-radius: var(--wc-radius-md);
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color var(--wc-transition-fast),
+    border-color     var(--wc-transition-fast),
+    color            var(--wc-transition-fast),
+    box-shadow       var(--wc-transition-fast);
+  user-select: none;
+}
+
+.wc-btn:focus-visible {
+  outline: 2px solid var(--wc-color-primary);
+  outline-offset: 2px;
+}
+
+/* Primary */
+.wc-btn--primary {
+  background: var(--wc-color-primary);
+  color: var(--wc-color-text-inverse);
+}
+.wc-btn--primary:hover {
+  background: var(--wc-color-primary-dark);
+}
+
+/* Secondary */
+.wc-btn--secondary {
+  background: var(--wc-color-surface);
+  color: var(--wc-color-text-primary);
+  border-color: var(--wc-color-border-strong);
+}
+.wc-btn--secondary:hover {
+  background: var(--wc-color-bg);
+}
+
+/* Ghost */
+.wc-btn--ghost {
+  background: transparent;
+  color: var(--wc-color-text-secondary);
+}
+.wc-btn--ghost:hover {
+  background: var(--wc-color-bg);
+  color: var(--wc-color-text-primary);
+}
+
+/* Danger */
+.wc-btn--danger {
+  background: var(--wc-color-danger);
+  color: var(--wc-color-text-inverse);
+}
+.wc-btn--danger:hover {
+  background: #b91c1c;
+}
+
+/* サイズ */
+.wc-btn--sm {
+  min-height: 32px;
+  padding: var(--wc-space-1) var(--wc-space-3);
+  font-size: var(--wc-text-xs);
+}
+
+.wc-btn--lg {
+  min-height: 52px;
+  padding: var(--wc-space-3) var(--wc-space-6);
+  font-size: var(--wc-text-base);
+}
+
+/* ============================================================
+   6. 共通UIコンポーネント — バッジ
+   ============================================================ */
+.wc-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--wc-space-2);
+  font-size: var(--wc-text-xs);
+  font-weight: 600;
+  line-height: 1.4;
+  border-radius: var(--wc-radius-full);
+  white-space: nowrap;
+}
+
+.wc-badge--primary { background: var(--wc-color-primary-ghost); color: var(--wc-color-primary-dark); }
+.wc-badge--success { background: var(--wc-color-success-ghost); color: var(--wc-color-success); }
+.wc-badge--warning { background: var(--wc-color-warning-ghost); color: var(--wc-color-warning); }
+.wc-badge--danger  { background: var(--wc-color-danger-ghost);  color: var(--wc-color-danger); }
+.wc-badge--info    { background: var(--wc-color-info-ghost);    color: var(--wc-color-info); }
+.wc-badge--neutral { background: var(--wc-color-bg);             color: var(--wc-color-text-secondary); border: 1px solid var(--wc-color-border); }
+
+/* ============================================================
+   7. 共通UIコンポーネント — カード
+   ============================================================ */
+.wc-card {
+  background: var(--wc-color-surface);
+  border: 1px solid var(--wc-color-border);
+  border-radius: var(--wc-radius-lg);
+  box-shadow: var(--wc-shadow-xs);
+}
+
+.wc-card__header,
+.wc-card__body,
+.wc-card__footer {
+  padding: var(--wc-space-4) var(--wc-space-5);
+}
+
+.wc-card__header {
+  border-bottom: 1px solid var(--wc-color-border);
+  display: flex;
+  align-items: center;
+  gap: var(--wc-space-3);
+}
+
+.wc-card__title {
+  font-size: var(--wc-text-base);
+  font-weight: 600;
+  color: var(--wc-color-text-primary);
+}
+
+.wc-card__footer {
+  border-top: 1px solid var(--wc-color-border);
+}
+
+/* ============================================================
+   8. 共通UIコンポーネント — テーブル
+   ============================================================ */
+
+/* 横スクロール防止ラッパー（スマホ対応） */
+.wc-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--wc-color-border);
+  border-radius: var(--wc-radius-lg);
+}
+
+.wc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--wc-text-sm);
+}
+
+.wc-table th,
+.wc-table td {
+  padding: var(--wc-space-3) var(--wc-space-4);
+  text-align: left;
+  border-bottom: 1px solid var(--wc-color-border);
+  white-space: nowrap;
+}
+
+.wc-table th {
+  font-weight: 600;
+  font-size: var(--wc-text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--wc-color-text-secondary);
+  background: var(--wc-color-bg);
+}
+
+.wc-table tbody tr:last-child td { border-bottom: none; }
+.wc-table tbody tr:hover td { background: var(--wc-color-primary-ghost); }
+
+/* ============================================================
+   9. 共通UIコンポーネント — フォーム
+   ============================================================ */
+.wc-input,
+.wc-select,
+.wc-textarea {
+  display: block;
+  width: 100%;
+  /* スマホズーム防止: font-size 最低 16px */
+  font-size: var(--wc-text-base);
+  font-family: var(--wc-font-sans);
+  line-height: var(--wc-leading-normal);
+  color: var(--wc-color-text-primary);
+  background: var(--wc-color-surface);
+  border: 1px solid var(--wc-color-border-strong);
+  border-radius: var(--wc-radius-md);
+  padding: var(--wc-space-2) var(--wc-space-3);
+  min-height: 44px; /* タップターゲット最小値 */
+  transition: border-color var(--wc-transition-fast), box-shadow var(--wc-transition-fast);
+}
+
+.wc-input:focus,
+.wc-select:focus,
+.wc-textarea:focus {
+  outline: none;
+  border-color: var(--wc-color-primary);
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 0.15);
+}
+
+.wc-input::placeholder,
+.wc-textarea::placeholder {
+  color: var(--wc-color-text-muted);
+}
+
+.wc-form-label {
+  display: block;
+  font-size: var(--wc-text-sm);
+  font-weight: 500;
+  color: var(--wc-color-text-secondary);
+  margin-bottom: var(--wc-space-1);
+}
+
+.wc-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wc-space-1);
+  margin-bottom: var(--wc-space-4);
+}
+
+/* ============================================================
+   10. モーダル
+   ============================================================ */
+.wc-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: rgb(15 23 42 / 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--wc-space-4);
+  animation: wc-fade-in var(--wc-transition-normal) ease;
+}
+
+.wc-modal {
+  background: var(--wc-color-surface);
+  border-radius: var(--wc-radius-xl);
+  box-shadow: var(--wc-shadow-lg);
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: wc-slide-up var(--wc-transition-normal) ease;
+}
+
+.wc-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--wc-space-5) var(--wc-space-6);
+  border-bottom: 1px solid var(--wc-color-border);
+}
+
+.wc-modal__title {
+  font-size: var(--wc-text-lg);
+  font-weight: 600;
+}
+
+.wc-modal__body {
+  padding: var(--wc-space-5) var(--wc-space-6);
+}
+
+.wc-modal__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--wc-space-3);
+  padding: var(--wc-space-4) var(--wc-space-6);
+  border-top: 1px solid var(--wc-color-border);
+}
+
+@keyframes wc-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes wc-slide-up {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* ============================================================
+   11. ページレイアウト
+   ============================================================ */
+.wc-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.wc-main {
+  flex: 1;
+  padding: var(--wc-space-6) var(--wc-space-4);
+  max-width: var(--wc-content-max-width);
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* タブレット以上ではサイドパディングを広げる */
+@media (min-width: 768px) {
+  .wc-main {
+    padding: var(--wc-space-8) var(--wc-space-6);
+  }
+}
+
+/* ============================================================
+   12. アニメーション モーション低減対応
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
