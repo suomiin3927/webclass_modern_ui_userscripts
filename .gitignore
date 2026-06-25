@@ -6,10 +6,17 @@ Thumbs.db
 .vscode/
 .idea/
 
-# 外部ライブラリ（もしnpm等で導入した場合、本体はGitHubに上げない）
+# 外部ライブラリ（npm管理のためGitHubには上げない）
 node_modules/
 package-lock.json
 
 # テスト実行時のログや一時ファイル
 *.log
 .eslintcache
+
+# Vite キャッシュ
+.vite/
+
+# ビルド成果物（配布用1ファイル）
+# ※ dist/ を公開する場合はこの行を削除してコメントアウト
+# dist/
