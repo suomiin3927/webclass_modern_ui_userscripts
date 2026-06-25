@@ -10,7 +10,7 @@ export default defineConfig({
         namespace: 'https://github.com/suomiin3927/webclass_modern_ui_userscript',
         version: '0.1.0',
         description: '宮崎大学WebClassのUIをモダンに再構築するUserscript',
-        author: 'Aiki Watanabe / git:suomiin3927',
+        author: 'suomiin3927 (Aiki Watanabe)',
         license: 'MIT',
 
         match: [

@@ -17,8 +17,7 @@ const NS = 'wc_modern_';
 export interface AppSettings {
   /** テーマカラー（CSS変数 --wc-color-primary に適用） */
   themeColor: string;
-  /** カラーモード: 'light' | 'dark' | 'auto' */
-  colorMode: 'light' | 'dark' | 'auto';
+  colorMode: 'system' | 'light' | 'dark';
   /** ダッシュボードに表示するウィジェットの表示状態 */
   widgetVisibility: {
     announcements: boolean;
