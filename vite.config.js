@@ -6,7 +6,7 @@ export default defineConfig({
     monkey({
       entry: 'src/main.ts',
       userscript: {
-        name: 'WebClass Modern UI',
+        name: 'Better WebClass UI',
         namespace: 'https://github.com/suomiin3927/webclass_modern_ui_userscript',
         version: '0.1.0',
         description: '宮崎大学WebClassのUIをモダンに再構築するUserscript',
