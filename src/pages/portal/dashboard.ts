@@ -83,7 +83,7 @@ export async function initDashboardPage(): Promise<void> {
   // イベント登録
   initTopbar();
   bindCourseSearch();
-  bindSemesterSelects(scraped);
+  bindSemesterSelects();
   ensureOpenMessageFn();
 
   hideLoadingScreen();
@@ -190,7 +190,7 @@ function scrapeTopPageData(): ScrapedTopPageData {
     const meta = li.querySelector('.exhibitionInfo');
     if (a) {
       notices.push({
-        title:  a.title || a.textContent?.trim() ?? '',
+        title:  a.title || (a.textContent?.trim() ?? ''),
         href:   a.href,
         meta:   meta?.textContent?.trim() ?? '',
         unread: a.classList.contains('unread'),
@@ -355,7 +355,7 @@ function bindCourseSearch(): void {
 }
 
 /** 学期フィルターセレクトの変更 → 元フォームをサブミット */
-function bindSemesterSelects(scraped: ScrapedTopPageData): void {
+function bindSemesterSelects(): void {
   const yearSel     = document.getElementById('wc-year-select')     as HTMLSelectElement | null;
   const semesterSel = document.getElementById('wc-semester-select') as HTMLSelectElement | null;
   const titleEl     = document.getElementById('wc-schedule-title');
@@ -391,8 +391,9 @@ function bindSemesterSelects(scraped: ScrapedTopPageData): void {
  * お知らせをポップアップウィンドウで開く。
  */
 function ensureOpenMessageFn(): void {
-  if (typeof (window as Window & { openMessage?: unknown }).openMessage !== 'undefined') return;
-  (window as Window & { openMessage: (url: string) => boolean }).openMessage = function (url: string) {
+  const win = window as unknown as { openMessage?: (url: string) => boolean };
+  if (typeof win.openMessage !== 'undefined') return;
+  win.openMessage = function (url: string) {
     const w = window.open(
       url,
       'msgeditor',
