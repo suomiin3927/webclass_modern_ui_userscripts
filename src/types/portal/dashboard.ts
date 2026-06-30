@@ -1,89 +1,67 @@
-// src/types/webclass.ts
-
-export enum DayOfWeek {
-  Monday = 'mon',
-  Tuesday = 'tue',
-  Wednesday = 'wed',
-  Thursday = 'thu',
-  Friday = 'fri',
-  Saturday = 'sat',
-  Unknown = 'unknown'
-}
-
-export enum ClassPeriod {
-  Period1 = 'p1', // 1・2限
-  Period2 = 'p2', // 3・4限
-  Period3 = 'p3', // 5・6限
-  Period4 = 'p4', // 7・8限
-  Period5 = 'p5', // 9・10限
-  Period6 = 'p6', // 11・12限
-  Unknown = 'unknown'
-}
-
 export interface UserProfile {
   username: string;
   unreadMessagesCount: number;
 }
 
-export interface ScheduleInfo {
-  day: DayOfWeek;
-  period: ClassPeriod;
+export interface CourseSchedule {
+  day: 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'unknown';
+  period: string; // "p1", "p2" などの時限コード、または "unknown"
 }
 
 export interface ScheduledCourse {
-  id: string;         // 例: "6C070" (年度が削られた純粋なコード)
-  title: string;      // 例: "基礎化学（情報Ｐ）"
-  term: string;       // 例: "2026年度前期"
+  id: string;
+  title: string;
+  term: string;
   url: string;
-  schedule: ScheduleInfo;
+  schedule: CourseSchedule;
   unreadMessages: number;
   hasUrgentTask: boolean;
 }
 
-export interface OtherCourseNode {
+export interface CourseItem {
+  id: string;
+  title: string;
+  url: string;
+  unreadMessages: number;
+  hasUrgentTask: boolean;
+}
+
+export interface CourseCategory {
   categoryName: string;
-  children?: OtherCourseNode[];
-  courses?: {
-    id: string;
-    title: string;
-    url: string;
-    unreadMessages: number;
-    hasUrgentTask: boolean;
-  }[];
+  courses: CourseItem[];
 }
 
-export interface Announcement {
+export interface OtherCourseGroup {
+  categoryName: string; // レベル1のカテゴリ名
+  children: CourseCategory[]; // レベル2のカテゴリとコース一覧
+}
+
+export interface SystemAnnouncement {
   id: string;
   title: string;
   url: string;
   isNew: boolean;
 }
 
-export interface Survey {
-  id: string;
+export interface SideMenuLink {
   title: string;
   url: string;
-  isNew: boolean;
 }
 
-export interface ExternalLink {
+export interface SideMenuBlock {
   title: string;
-  url: string;
+  links: SideMenuLink[];
 }
 
 export interface PortalContents {
-  systemAnnouncements: Announcement[];
-  surveys: Survey[];
-  globalTools: {
-    taskStatusListUrl: string;       // 課題実施状況一覧
-    learningRecordViewerUrl: string; // 学習記録ビューア
-  };
-  externalLinks: ExternalLink[];
+  systemAnnouncements: SystemAnnouncement[];
+  requiredSurveysCount: number;
+  sideMenus: SideMenuBlock[];
 }
 
-export interface DashboardInfo {
+export interface WebClassDashboardInfo {
   userProfile: UserProfile;
   scheduledCourses: ScheduledCourse[];
-  otherCourses: OtherCourseNode[];
+  otherCourses: OtherCourseGroup[];
   portalContents: PortalContents;
 }
