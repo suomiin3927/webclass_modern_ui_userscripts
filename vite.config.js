@@ -38,7 +38,7 @@ export default defineConfig({
         ],
       },
       build: {
-        fileName: 'webclass_modern_ui.user.js',
+        fileName: 'better_webclass.user.js',
         externalGlobals: {},
         minifyCss: true,
       },
