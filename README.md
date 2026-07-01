@@ -1,8 +1,13 @@
 # Better WebClass
 宮崎大学のWebClassのユーザインターフェースを現代的に変える試み。随時更新して行きますです。
 
-
+## 一般公開
+今のところまだ未完成です。
+開発者がやる気を出したり暇な時間ができたりすると開発速度が上がります。
+テスト期間は開発速度が下がります。
 　
 ## 開発ログ
 > 注 : ファイルパスは異なる場合があります。
-- `26-07-01` : トップページの情報をスクレイピングするAPI(`src/api/fetchDashboardInfo.ts`)を作成。それに伴い型定義(`src/types/portal/dashboard.ts`)を作成。
+- `26-07-01` : 
+  - トップページの情報をスクレイピングするAPI(`src/api/fetchDashboardInfo.ts`)を作成。
+  - 型定義(`src/types/portal/dashboard.ts`)を作成。
