@@ -1,11 +1,11 @@
-import { WebClassDashboardInfo, ScheduledCourse, OtherCourseGroup, SystemAnnouncement, SideMenuBlock } from '../types/portal/dashboard';
+import { WebClassDashboardInfo, ScheduledCourse, OtherCourseGroup, SystemAnnouncement, SideMenuBlock } from '../../types/portal/dashboard';
 
 /**
  * WebClassのマイページ（コースリスト画面）のDOMを解析し、
  * 整形されたダッシュボード情報を取得します。
  * * @returns 解析されたダッシュボード情報オブジェクト
  */
-export function getDashboardInfo(): WebClassDashboardInfo {
+export function fetchDashboardInfo(): WebClassDashboardInfo {
   const origin = window.location.origin;
 
   // =========================================================================

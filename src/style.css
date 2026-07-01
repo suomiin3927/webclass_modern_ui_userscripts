@@ -47,7 +47,7 @@
   --wc-today-col:            rgba(var(--wc-color-primary-rgb), 0.07);
 
   /* --- タイポグラフィ --- */
-  --wc-font-sans: 'Noto Sans JP', 'Inter', 'Hiragino Kaku Gothic ProN', 'YuGothic', 'Meiryo', system-ui, sans-serif;
+  --wc-font-sans: 'Inter', -apple-system, 'Hiragino Kaku Gothic ProN', 'YuGothic', 'Meiryo', system-ui, sans-serif;
   --wc-font-mono: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
 
   --wc-text-xs:   0.75rem;
@@ -92,7 +92,7 @@
 
   /* --- レイアウト --- */
   --wc-header-height:     56px;
-  --wc-sidebar-width:     300px;
+  --wc-sidebar-width:     330px;
   --wc-content-max-width: 1340px;
 }
 
@@ -144,13 +144,13 @@
 }
 
 .wc-app {
+  all: revert;
   font-family: var(--wc-font-sans);
   font-size: 14px;
   line-height: var(--wc-leading-normal);
   color: var(--wc-color-text-primary);
   background: var(--wc-color-bg);
   min-height: 100vh;
-  all: initial;
   display: block;
 }
 
@@ -858,7 +858,7 @@
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--wc-color-text-dim);
+  color: var(--wc-color-text-muted);
   border-bottom: 1px solid var(--wc-color-border);
   background: rgba(128,128,128,0.04);
 }
@@ -884,7 +884,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  color: var(--wc-color-text-muted);
+  color: var(--wc-color-text-dim);
   text-decoration: none;
   font-size: 13px;
   transition: color var(--wc-transition-fast);
@@ -896,7 +896,7 @@
 .wc-item__title   { font-size: 12.5px; }
 .wc-item__title.is-bold { color: var(--wc-color-text-primary); font-weight: 600; }
 .wc-item__sub     { font-size: 10px; color: var(--wc-color-text-dim); margin-top: 2px; }
-.wc-item__info    { font-size: 11px; color: var(--wc-color-text-dim); margin-left: auto; flex-shrink: 0; }
+.wc-item__info    { font-size: 11px; color: var(--wc-color-text-muted); margin-left: auto; flex-shrink: 0; }
 .wc-item__info.is-accent { color: var(--wc-color-primary-light); font-weight: 600; }
 
 .wc-item__dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
@@ -909,6 +909,7 @@
   padding: 4px 10px 8px;
   font-size: 11px;
   color: var(--wc-color-primary-light);
+
   text-decoration: none;
   transition: color var(--wc-transition-fast);
 }
@@ -932,7 +933,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--wc-color-text-dim);
+  color: var(--wc-color-text-muted);
 }
 
 /* ============================================================
@@ -975,15 +976,27 @@
 .wc-schedule-filter select:focus  { outline: none; border-color: var(--wc-color-primary); }
 .wc-schedule-filter-sep { font-size: 12px; color: var(--wc-color-text-dim); }
 
-/* ── CSS Grid タイムテーブル ── */
-.wc-timetable { display: grid; grid-template-columns: 68px repeat(6, 1fr); }
+/* ── CSS Grid タイムテーブル ── *//* ── CSS Grid タイムテーブル（修正版） ── */
+.wc-timetable {
+  display: grid;
+}
+
+/* 土曜日がない場合（通常時）：時限(68px) + 月〜金の5列 (計6列) */
+.wc-timetable.no-sat {
+  grid-template-columns: 68px repeat(5, 1fr);
+}
+
+/* 土曜日がある場合（集中講義等）：時限(68px) + 月〜土の6列 (計7列) */
+.wc-timetable.has-sat {
+  grid-template-columns: 68px repeat(6, 1fr);
+}
 
 .wc-tt-hcell {
   padding: 9px 4px;
   text-align: center;
   font-size: 11px;
   font-weight: 600;
-  color: var(--wc-color-text-dim);
+  color: var(--wc-color-text-muted);
   border-bottom: 1px solid var(--wc-color-border);
   background: rgba(128,128,128,0.03);
 }
@@ -1008,7 +1021,7 @@
   text-align: center;
   font-size: 10px;
   font-weight: 500;
-  color: var(--wc-color-text-dim);
+  color: var(--wc-color-text-muted);
   background: rgba(128,128,128,0.02);
   border-right: 1px solid var(--wc-color-border) !important;
   line-height: 1.3;
@@ -1027,7 +1040,7 @@
   padding: 5px 7px;
   background: rgba(var(--wc-color-primary-rgb), 0.1);
   border: 1px solid rgba(var(--wc-color-primary-rgb), 0.22);
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 12px;
   line-height: 1.35;
   overflow: hidden;
@@ -1116,7 +1129,7 @@
   transition: border-color var(--wc-transition-fast);
 }
 
-.wc-course-search::placeholder { color: var(--wc-color-text-dim); }
+.wc-course-search::placeholder { color: var(--wc-color-text-muted); }
 .wc-course-search:focus { outline: none; border-color: var(--wc-color-primary); }
 
 .wc-course-group {
@@ -1132,7 +1145,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--wc-color-text-dim);
+  color: var(--wc-color-text-muted);
   border-bottom: 1px solid var(--wc-color-border);
   background: rgba(128,128,128,0.03);
 }

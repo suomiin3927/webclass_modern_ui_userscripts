@@ -185,9 +185,6 @@ export function buildTopbar(options: TopbarOptions): string {
           </span>
         </a>
 
-        <!-- ログアウト -->
-        <a class="wc-logout-btn" href="${escAttr(logoutHref)}">ログアウト</a>
-
         <!-- アバター + ユーザー名（クリックでポップアップ） -->
         <div class="wc-avatar-trigger" id="wc-avatar-trigger" role="button"
              aria-haspopup="true" aria-expanded="false"
@@ -208,6 +205,7 @@ export function buildTopbar(options: TopbarOptions): string {
 
             <div class="wc-popup__links">${accountLinksHtml}</div>
             <div class="wc-popup__divider"></div>
+            <a class="wc-logout-btn" href="${escAttr(logoutHref)}">ログアウト</a> 
 
             <!-- テーマ設定 -->
             <div class="wc-popup__section">

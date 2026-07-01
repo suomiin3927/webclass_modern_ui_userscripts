@@ -1,20 +1,10 @@
 /**
  * templates/portal/DashboardView.ts — ダッシュボード HTML テンプレート
- *
- * Userscript の以下の関数を TypeScript に移植したもの:
- *   buildTimetableHtml   → buildTimetableSection
- *   buildSidebarHtml     → buildSidebarSection
- *   buildOtherCoursesHtml → buildOtherCoursesSection
- *   Item / Card / ButtonLink 等のコンポーネント関数（ローカル）
- *
- * すべての関数は純粋な HTML 文字列を返し、DOM 操作は行わない。
- * DOM 操作・イベント登録は dashboard.ts 側で行う。
  */
 
 // ============================================================
-// 型定義
+// 型定義 (中身は維持)
 // ============================================================
-
 export interface TimetableCourse {
   title:       string;
   fullTitle:   string;
@@ -63,9 +53,8 @@ export interface DashboardViewData {
 }
 
 // ============================================================
-// HTML エスケープユーティリティ（ローカル）
+// HTML エスケープユーティリティ (維持)
 // ============================================================
-
 function escAttr(s: unknown): string {
   return String(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
@@ -78,9 +67,8 @@ function escHtml(s: unknown): string {
 }
 
 // ============================================================
-// ローカルコンポーネント関数
+// ローカルコンポーネント関数 (維持)
 // ============================================================
-
 interface ItemProps {
   hasDot?:     boolean;
   dotState?:   'is-unread' | 'is-read';
@@ -112,11 +100,11 @@ function Item({
 }: ItemProps): string {
   const dotHtml     = hasDot    ? `<span class="wc-item__dot ${dotState}"></span>` : '';
   const subHtml     = subText   ? `<div class="wc-item__sub">${escHtml(subText)}</div>` : '';
-  const infoHtml    = infoText  ? `<span class="wc-item__info${infoAccent ? ' is-accent' : ''}">${escHtml(infoText)}</span>` : '';
+  const displayInfoText = infoText === '[未分類]' ? '---' : infoText;
+  const infoHtml    = displayInfoText  ? `<span class="wc-item__info${infoAccent ? ' is-accent' : ''}">${escHtml(displayInfoText)}</span>` : '';
   const titleAttrs  = titleAttr ? `title="${escAttr(titleAttr)}"` : '';
   const searchAttrs = searchKey ? `data-course-name="${escAttr(searchKey)}"` : '';
 
-  // 「return xxx」形式のonclick はアンカー側に付ける（画面遷移を伴う動作）
   const onClickOnDiv = onClick && !onClick.includes('return') ? `onclick="${escAttr(onClick)}"` : '';
   const onClickOnA   = onClick &&  onClick.includes('return') ? `onclick="${escAttr(onClick)}"` : '';
 
@@ -167,7 +155,6 @@ function SelectOptions(
 // ============================================================
 // 時間割セクション
 // ============================================================
-
 const DAYS_LONG  = ['月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'] as const;
 const DAYS_SHORT = ['月', '火', '水', '木', '金', '土'] as const;
 
@@ -184,23 +171,32 @@ export function buildTimetableSection(data: DashboardViewData): string {
   const { scheduleData, todayDay, yearSelectData, semesterSelectData, addCourseHref } = data;
   const initTitle = buildScheduleTitle(yearSelectData.selected, semesterSelectData.selected);
 
-  const headerCells = DAYS_LONG.map((d, i) => {
+  const filteredScheduleData = scheduleData.filter(row => {
+    const orderStr = String(row.order).trim();
+    return orderStr !== '7' && !orderStr.includes('7限');
+  });
+
+  const hasSaturdayCourse = filteredScheduleData.some(row => row.dayCourses['土曜日'] !== undefined);
+  const activeDaysLong  = hasSaturdayCourse ? DAYS_LONG : DAYS_LONG.slice(0, 5);
+  const activeDaysShort = hasSaturdayCourse ? DAYS_SHORT : DAYS_SHORT.slice(0, 5);
+
+  const headerCells = activeDaysLong.map((d, i) => {
     const isToday = d === todayDay;
     return `
       <div class="wc-tt-hcell${isToday ? ' is-today' : ''}">
-        ${DAYS_SHORT[i]}${isToday ? ' ●' : ''}
+        ${activeDaysShort[i]}
       </div>
     `;
   }).join('');
 
-  const bodyRows = scheduleData.map((row, rowIdx) => {
-    const isLast   = rowIdx === scheduleData.length - 1;
+  const bodyRows = filteredScheduleData.map((row, rowIdx) => {
+    const isLast   = rowIdx === filteredScheduleData.length - 1;
     const rowClass = isLast ? ' wc-tt-row--last' : '';
 
-    const cells = DAYS_LONG.map((d, ci) => {
+    const cells = activeDaysLong.map((d, ci) => {
       const course    = row.dayCourses[d];
       const isToday   = d === todayDay;
-      const isLastCol = ci === DAYS_LONG.length - 1;
+      const isLastCol = ci === activeDaysLong.length - 1;
 
       const cellClasses = [
         'wc-tt-cell',
@@ -210,13 +206,17 @@ export function buildTimetableSection(data: DashboardViewData): string {
 
       if (!course) return `<div class="${cellClasses}"></div>`;
 
+      // ── 💡 変更点: () または （） とその中身を "  " (半角スペース2個) に置換 ──
+      // [^)]* は「閉じ括弧以外の文字」にマッチさせることで、ネストや複数箇所の誤判定を防止
+      const cleanedTitle = course.title.replace(/\([^)]*\)|（[^）]*）/g, '  ');
+
       return `
         <div class="${cellClasses}">
           <div class="wc-chip${course.hasDeadline ? ' has-deadline' : ''}">
             <a class="wc-chip__link"
                href="${escAttr(course.href)}"
                title="${escAttr(course.fullTitle)}">
-              <span class="wc-chip__title">${escHtml(course.title)}</span>
+              <span class="wc-chip__title">${escHtml(cleanedTitle)}</span>
               ${course.hasDeadline ? '<span class="wc-chip__badge">⚠ 締切間近</span>' : ''}
             </a>
           </div>
@@ -229,6 +229,8 @@ export function buildTimetableSection(data: DashboardViewData): string {
       ${cells}
     `;
   }).join('');
+
+  const gridClass = hasSaturdayCourse ? 'has-sat' : 'no-sat';
 
   return `
     <section>
@@ -246,7 +248,7 @@ export function buildTimetableSection(data: DashboardViewData): string {
             <select id="wc-semester-select">${SelectOptions(semesterSelectData.options)}</select>
           </div>
         </div>
-        <div class="wc-timetable">
+        <div class="wc-timetable ${gridClass}">
           <div class="wc-tt-hcell is-corner"></div>
           ${headerCells}
           ${bodyRows}
@@ -262,23 +264,27 @@ export function buildTimetableSection(data: DashboardViewData): string {
 // ============================================================
 // その他のコースセクション
 // ============================================================
-
 export function buildOtherCoursesSection(data: DashboardViewData): string {
   const { otherCourses } = data;
 
-  const groupsHtml = otherCourses.map(group => `
-    <div class="wc-course-group" data-group>
-      <div class="wc-course-group__title">${escHtml(group.title)}</div>
-      <div class="wc-course-list">
-        ${group.courses.map(c => Item({
-          title:     c.title,
-          infoText:  c.info,
-          href:      c.href,
-          searchKey: c.title,
-        })).join('')}
+  const groupsHtml = otherCourses.map(group => {
+    // ── 💡 変更点: グループ名が [未分類] だった場合は "---" に置き換える ──
+    const displayTitle = group.title === '[未分類]' ? '---' : group.title;
+
+    return `
+      <div class="wc-course-group" data-group>
+        <div class="wc-course-group__title">${escHtml(displayTitle)}</div>
+        <div class="wc-course-list">
+          ${group.courses.map(c => Item({
+            title:     c.title,
+            infoText:  c.info,
+            href:      c.href,
+            searchKey: c.title,
+          })).join('')}
+        </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 
   return `
     <section>
@@ -298,9 +304,8 @@ export function buildOtherCoursesSection(data: DashboardViewData): string {
 }
 
 // ============================================================
-// サイドバーセクション
+// サイドバーセクション (維持)
 // ============================================================
-
 export function buildSidebarSection(data: DashboardViewData): string {
   const { surveyData, sideLinks, notices } = data;
 

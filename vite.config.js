@@ -1,8 +1,10 @@
 import { defineConfig } from 'vite';
 import monkey from 'vite-plugin-monkey';
+import basicSsl from '@vitejs/plugin-basic-ssl'; // 1. インポートを追加
 
 export default defineConfig({
   plugins: [
+    basicSsl(), // 2. プラグインの配列の先頭に追加
     monkey({
       entry: 'src/main.ts',
       userscript: {
@@ -34,9 +36,6 @@ export default defineConfig({
         connect: [
           'webclass.eden.miyazaki-u.ac.jp',
         ],
-        // Userscript配布・更新先URL（公開後に設定）
-        // updateURL: 'https://raw.githubusercontent.com/your-username/webclass-modern-ui/main/dist/webclass_modern_ui.user.js',
-        // downloadURL: 'https://raw.githubusercontent.com/your-username/webclass-modern-ui/main/dist/webclass_modern_ui.user.js',
       },
       build: {
         fileName: 'webclass_modern_ui.user.js',
@@ -46,9 +45,14 @@ export default defineConfig({
     }),
   ],
   build: {
-    // ソースマップはデバッグ時のみ有効にする（本番時はfalse）
     sourcemap: false,
     target: 'es2020',
     minify: false,
+  },
+  // 3. ローカル開発サーバー用の HTTPS 設定を追加
+  server: {
+    https: true,
+    host: '127.0.0.1',
+    port: 5173,
   },
 });
